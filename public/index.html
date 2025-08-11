@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KPDCL Payment Reconciliation Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #3b82f6;
+      --secondary-color: #64748b;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --error-color: #ef4444;
+      --background-color: #f8fafc;
+      --surface-color: #ffffff;
+      --border-color: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+      --gradient-surface: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--background-color);
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      background: var(--gradient-primary);
+      color: white;
+      padding: 2rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .company-info h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .company-info p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    .status-indicators {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-badge.online {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.demo {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .header-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      width: 100%;
+    }
+
+    /* Feature Grid */
+    .features-section {
+      margin-bottom: 3rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gradient-primary);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-primary);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .feature-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-surface);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--primary-color);
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .feature-card p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      padding: 0.25rem 0.75rem;
+      background: var(--background-color);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    /* API Section */
+    .api-section {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .api-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .api-endpoint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: var(--background-color);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .api-endpoint:hover {
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+    }
+
+    .api-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .api-method {
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+    }
+
+    .api-method.get {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .api-details h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .api-path {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-family: 'Courier New', monospace;
+    }
+
+    .api-status {
+      font-size: 1.25rem;
+      color: var(--success-color);
+    }
+
+    /* Payment Modes */
+    .payment-modes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .payment-mode {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .settlement-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .settlement-badge.t0 {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+    }
+
+    .settlement-badge.t1 {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+    }
+
+    /* Action Buttons */
+    .actions-section {
+      text-align: center;
+      margin: 3rem 0;
+    }
+
+    .actions-grid {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      min-width: 180px;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+      background: var(--surface-color);
+      color: var(--text-primary);
+      border: 2px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    /* Setup Instructions */
+    .setup-section {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .setup-steps {
+      display: grid;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .setup-step {
+      display: flex;
+      gap: 1rem;
+      padding: 1.5rem;
+      background: var(--background-color);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      background: var(--gradient-primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .step-content h4 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-content p {
+      color: var(--text-secondary);
+    }
+
+    /* Demo Notice */
+    .demo-notice {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+      border: 2px solid rgba(59, 130, 246, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-notice::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(59, 130, 246, 0.05) 10px,
+        rgba(59, 130, 246, 0.05) 20px
+      );
+      animation: slide 20s linear infinite;
+    }
+
+    @keyframes slide {
+      0% { transform: translateX(-50px); }
+      100% { transform: translateX(50px); }
+    }
+
+    .demo-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .demo-notice h3 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--text-primary);
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-top {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .main-content {
+        padding: 1rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions-grid {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="header-top">
+          <div class="logo-section">
+            <div class="logo">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <div class="company-info">
+              <h1>KPDCL Payment Reconciliation</h1>
+              <p>Kashmir Power Distribution Corporation Limited - Enterprise Dashboard</p>
+            </div>
+          </div>
+          
+          <div class="status-indicators">
+            <div class="status-badge online" id="serverStatus">
+              <i class="fas fa-circle"></i>
+              <span>Server Online</span>
+            </div>
+            <div class="status-badge demo">
+              <i class="fas fa-flask"></i>
+              <span>Demo Mode</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="header-stats">
+          <div class="stat-card">
+            <div class="stat-number" id="totalPayments">156,847</div>
+            <div class="stat-label">Total Payments Processed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="reconciliationRate">94.7%</div>
+            <div class="stat-label">Reconciliation Rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalAmount">₹2.4Cr</div>
+            <div class="stat-label">Amount Reconciled</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="exceptions">23</div>
+            <div class="stat-label">Active Exceptions</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Features Section -->
+      <section class="features-section">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h2>Dashboard Capabilities</h2>
+        </div>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-header">
+              <div class="feature-icon">
+                <i class="fas fa-tachometer-alt"></i>
+              </div>
+              <h3>Executive Dashboard</h3>
+            </div>
+            <p>Real-time monitoring of payment volumes, reconciliation status, and key performance indicators across all KPDCL payment channels.</p>
+            <div class="feature-tags">
+              <span class="tag">Real-time</span>
+              <span class="tag">KPI Tracking</span>
+              <span class="tag">Multi-channel</span>
+            </div>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-header">
+              <div class="feature-icon">
+                <i class="fas fa-sync-alt"></i>
+              </div>
+              <h3>Automated Reconciliation</h3>
+            </div>
+            <p>Intelligent matching engine with exact and fuzzy matching capabilities, supporting both T+0 and T+1 settlement periods with high accuracy.</p>
+            <div class="feature-tags">
+              <span class="tag">AI-Powered</span>
+              <span class="tag">Fuzzy Matching</span>
+              <span class="tag">Settlement Aware</span>
+            </div>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-header">
+              <div class="feature-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <h3>Exception Management</h3>
+            </div>
+            <p>Comprehensive exception handling with priority-based action queues, automated alerts, and detailed investigation workflows.</p>
+            <div class="feature-tags">
+              <span class="tag">Priority Queue</span>
+              <span class="tag">Auto Alerts</span>
+              <span class="tag">Investigation</span>
+            </div>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-header">
+              <div class="feature-icon">
+                <i class="fas fa-chart-bar"></i>
+              </div>
+              <h3>Analytics & Reporting</h3>
+            </div>
+            <p>Advanced analytics with trend analysis, variance tracking, and comprehensive audit trails for regulatory compliance and business insights.</p>
+            <div class="feature-tags">
+              <span class="tag">Trend Analysis</span>
+              <span class="tag">Audit Trail</span>
+              <span class="tag">Compliance</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- API Endpoints Section -->
+      <section class="api-section">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fas fa-plug"></i>
+          </div>
+          <h2>API Endpoints</h2>
+        </div>
+        
+        <div class="api-grid">
+          <a href="/api/health" target="_blank" class="api-endpoint">
+            <div class="api-info">
+              <span class="api-method get">GET</span>
+              <div class="api-details">
+                <h4>System Health Check</h4>
+                <span class="api-path">/api/health</span>
+              </div>
+            </div>
+            <div class="api-status">
+              <i class="fas fa-check-circle"></i>
+            </div>
+          </a>
+          
+          <a href="/api/test-db" target="_blank" class="api-endpoint">
+            <div class="api-info">
+              <span class="api-method get">GET</span>
+              <div class="api-details">
+                <h4>Database Connectivity Test</h4>
+                <span class="api-path">/api/test-db</span>
+              </div>
+            </div>
+            <div class="api-status" id="dbStatus">
+              <div class="loading"></div>
+            </div>
+          </a>
+          
+          <div class="api-endpoint">
+            <div class="api-info">
+              <span class="api-method get">GET</span>
+              <div class="api-details">
+                <h4>Reconciliation Summary</h4>
+                <span class="api-path">/api/dashboard/summary</span>
+              </div>
+            </div>
+            <div class="api-status">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+          </div>
+          
+          <div class="api-endpoint">
+            <div class="api-info">
+              <span class="api-method get">GET</span>
+              <div class="api-details">
+                <h4>Payment Exceptions</h4>
+                <span class="api-path">/api/dashboard/exceptions</span>
+              </div>
+            </div>
+            <div class="api-status">
+              <i class="fas fa-exclamation-circle"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Payment Modes Section -->
+      <section>
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fas fa-credit-card"></i>
+          </div>
+          <h2>Supported Payment Modes</h2>
+        </div>
+        
+        <div class="payment-modes">
+          <div class="payment-mode">
+            <div class="settlement-badge t0">T+0</div>
+            <div class="feature-header">
+              <div class="feature-icon">
+                <i class="fas fa-university"></i>
+              </div>
+              <h3>Over the Counter</h3>
+            </div>
+            <p>Bank counter payments with same-day settlement and immediate posting to CCB system.</p>
+          </div>
+          
+          <div class="payment-mode">
+            <div class="settlement-badge t1">T+1</div>
+            <div class="feature-header">
+              <div class="feature-icon">
+                <i class="fas fa-mobile-alt"></i>
+              </div>
+              <h3>Mobile Applications</h3>
+            </div>
+            <p>Digital payments through KPDCL Billsahuliyat Plus, Smart BS, JK Bank Mpay, and BBPS with next-day settlement.</p>
+          </div>
+          
+          <div class="payment-mode">
+            <div class="settlement-badge t1">T+1</div>
+            <div class="feature-header">
+              <div class="feature-icon">
+                <i class="fas fa-cash-register"></i>
+              </div>
+              <h3>POS Machines</h3>
+            </div>
+            <p>Point-of-sale terminals distributed across field subdivision offices with T+1 settlement cycle.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="actions-section">
+        <div class="section-header" style="justify-content: center;">
+          <div class="section-icon">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <h2>Quick Actions</h2>
+        </div>
+        
+        <div class="actions-grid">
+          <a href="/api/health" target="_blank" class="btn btn-primary">
+            <i class="fas fa-heartbeat"></i>
+            System Health
+          </a>
+          <a href="/api/test-db" target="_blank" class="btn btn-primary">
+            <i class="fas fa-database"></i>
+            Test Database
+          </a>
+          <a href="/api/dashboard/summary?fromDate=2024-08-01&toDate=2024-08-11" target="_blank" class="btn btn-secondary">
+            <i class="fas fa-chart-line"></i>
+            Sample Data
+          </a>
+        </div>
+      </section>
+
+      <!-- Setup Instructions -->
+      <section class="setup-section">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fas fa-cog"></i>
+          </div>
+          <h2>Configuration Setup</h2>
+        </div>
+        
+        <div class="setup-steps">
+          <div class="setup-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Database Configuration</h4>
+              <p>Update the <code>.env</code> file with your Oracle database credentials for CORPORTAL and CCB systems.</p>
+            </div>
+          </div>
+          
+          <div class="setup-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Table Creation</h4>
+              <p>Execute the provided DDL scripts to create CORPORTAL_PAYMENTS and CCB_PAYMENTS tables with appropriate indexes.</p>
+            </div>
+          </div>
+          
+          <div class="setup-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Data Import</h4>
+              <p>Import your existing payment data and configure the automated FTP processing for JK Bank MIS files.</p>
+            </div>
+          </div>
+          
+          <div class="setup-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h4>Production Deployment</h4>
+              <p>The system will automatically switch from demo to live data once database connections are established.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Demo Notice -->
+      <section class="demo-notice">
+        <div class="demo-content">
+          <h3>
+            <i class="fas fa-flask"></i>
+            Currently Running in Demo Mode
+          </h3>
+          <p>The dashboard is displaying simulated data for demonstration purposes. Configure your Oracle database connections to enable full functionality with real payment reconciliation data from CORPORTAL and CCB systems.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>&copy; 2024 Kashmir Power Distribution Corporation Limited (KPDCL). All rights reserved.</p>
+      <p>Enterprise Payment Reconciliation System - Version 1.0</p>
+    </footer>
+  </div>
+
+  <script>
+    // Enhanced status checking and UI updates
+    class DashboardController {
+      constructor() {
+        this.init();
+      }
+
+      async init() {
+        await this.checkSystemStatus();
+        await this.loadMockStats();
+        this.setupEventListeners();
+        console.log('🚀 KPDCL Enterprise Dashboard initialized successfully');
+      }
+
+      async checkSystemStatus() {
+        try {
+          const healthResponse = await fetch('/api/health');
+          const healthData = await healthResponse.json();
+          
+          if (healthData.status === 'OK') {
+            document.getElementById('serverStatus').innerHTML = 
+              '<i class="fas fa-circle"></i><span>Server Online</span>';
+          }
+
+          // Check database status
+          try {
+            const dbResponse = await fetch('/api/test-db');
+            const dbData = await dbResponse.json();
+            const dbStatusEl = document.getElementById('dbStatus');
+            
+            if (dbData.status === 'Database Connected') {
+              dbStatusEl.innerHTML = '<i class="fas fa-check-circle" style="color: var(--success-color);"></i>';
+            } else {
+              dbStatusEl.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>';
+            }
+          } catch {
+            document.getElementById('dbStatus').innerHTML = 
+              '<i class="fas fa-times-circle" style="color: var(--error-color);"></i>';
+          }
+        } catch (error) {
+          console.warn('Status check failed:', error);
+          document.getElementById('serverStatus').innerHTML = 
+            '<i class="fas fa-exclamation-circle"></i><span>Connection Issue</span>';
+        }
+      }
+
+      async loadMockStats() {
+        // Simulate loading real stats
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        this.animateCounter('totalPayments', 156847);
+        this.animateCounter('reconciliationRate', 94.7, '%');
+        this.animateCounter('totalAmount', 2.4, 'Cr');
+        this.animateCounter('exceptions', 23);
+      }
+
+      animateCounter(elementId, target, suffix = '') {
+        const element = document.getElementById(elementId);
+        const duration = 2000;
+        const steps = 60;
+        const stepValue = target / steps;
+        let current = 0;
+        let step = 0;
+
+        const timer = setInterval(() => {
+          current += stepValue;
+          step++;
+          
+          if (step >= steps) {
+            current = target;
+            clearInterval(timer);
+          }
+          
+          if (suffix === '%') {
+            element.textContent = current.toFixed(1) + suffix;
+          } else if (suffix === 'Cr') {
+            element.textContent = '₹' + current.toFixed(1) + suffix;
+          } else {
+            element.textContent = Math.floor(current).toLocaleString();
+          }
+        }, duration / steps);
+      }
+
+      setupEventListeners() {
+        // Add click tracking for analytics
+        document.querySelectorAll('.api-endpoint').forEach(endpoint => {
+          endpoint.addEventListener('click', (e) => {
+            const path = endpoint.querySelector('.api-path').textContent;
+            console.log(`API endpoint accessed: ${path}`);
+          });
+        });
+
+        // Add hover effects for feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+          card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-8px)';
+          });
+          
+          card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0)';
+          });
+        });
+      }
+    }
+
+    // Initialize dashboard when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      new DashboardController();
+    });
+
+    // Add performance monitoring
+    window.addEventListener('load', () => {
+      console.log('📊 Dashboard Performance:', {
+        loadTime: performance.now(),
+        server: 'http://localhost:3001',
+        mode: 'demo'
+      });
+    });
+  </script>
+</body>
+</html>
